@@ -1,6 +1,8 @@
-import numpy as np
 import itertools
-from typing import List, Tuple, Set
+from typing import List, Set, Tuple
+
+import numpy as np
+
 
 def generate_masks(item_list: List[Tuple[int, ...]], max_element: int) -> np.ndarray:
     """
@@ -20,7 +22,9 @@ def generate_masks(item_list: List[Tuple[int, ...]], max_element: int) -> np.nda
     if not item_list:
         # Calculate the number of bytes needed for the bitmask width
         num_bytes = (max_element + 7) // 8
-        return np.empty((0, num_bytes), dtype=np.uint8) # Return empty array with correct width
+        return np.empty(
+            (0, num_bytes), dtype=np.uint8
+        )  # Return empty array with correct width
 
     num_items = len(item_list)
     # Create a boolean array (num_items x max_element)
@@ -30,8 +34,8 @@ def generate_masks(item_list: List[Tuple[int, ...]], max_element: int) -> np.nda
     for i, item in enumerate(item_list):
         # Convert 1-based elements to 0-based indices for the array
         indices = [x - 1 for x in item if 1 <= x <= max_element]
-        if indices: # Ensure there are valid indices before assignment
-             bool_array[i, indices] = True
+        if indices:  # Ensure there are valid indices before assignment
+            bool_array[i, indices] = True
 
     # Pack the boolean array into uint8 bitmasks along the element axis (axis=1)
     # 'order=C' is the default and suitable here.
@@ -39,14 +43,15 @@ def generate_masks(item_list: List[Tuple[int, ...]], max_element: int) -> np.nda
 
     return bitmasks
 
+
 def check_s_subset_coverage_bitwise(
     k_combo_masks: np.ndarray,
     j_subset_masks: np.ndarray,
     s_in_k_masks: np.ndarray,
     s_in_j_masks: np.ndarray,
     k_indices: np.ndarray,
-    j_indices: np.ndarray
-    ) -> np.ndarray:
+    j_indices: np.ndarray,
+) -> np.ndarray:
     """
     Checks for each j-subset if any of its s-subsets are covered by any s-subset
     of any *selected* k-combination, using bitwise operations.
@@ -58,7 +63,9 @@ def check_s_subset_coverage_bitwise(
     Let's rethink the greedy step with bitmasks directly. We don't need this function.
     See the modification in algorithm.py directly.
     """
-    raise NotImplementedError("This approach is overly complex for the greedy selection logic.")
+    raise NotImplementedError(
+        "This approach is overly complex for the greedy selection logic."
+    )
 
 
 # Example Usage
@@ -72,24 +79,36 @@ if __name__ == "__main__":
 
     # Generate some k-combos and j-subsets
     k_combos_list = list(itertools.combinations(samples_example[:n_example], k_example))
-    j_subsets_list = list(itertools.combinations(samples_example[:n_example], j_example))
+    j_subsets_list = list(
+        itertools.combinations(samples_example[:n_example], j_example)
+    )
 
-    print(f"Generating masks for {len(k_combos_list)} k-combos and {len(j_subsets_list)} j-subsets...")
+    print(
+        f"Generating masks for {len(k_combos_list)} k-combos and {len(j_subsets_list)} j-subsets..."
+    )
     print(f"Max element (n): {n_example}")
 
     k_combo_masks_arr = generate_masks(k_combos_list, n_example)
     j_subset_masks_arr = generate_masks(j_subsets_list, n_example)
 
-    print(f"k_combo_masks shape: {k_combo_masks_arr.shape}, dtype: {k_combo_masks_arr.dtype}")
-    print(f"j_subset_masks shape: {j_subset_masks_arr.shape}, dtype: {j_subset_masks_arr.dtype}")
+    print(
+        f"k_combo_masks shape: {k_combo_masks_arr.shape}, dtype: {k_combo_masks_arr.dtype}"
+    )
+    print(
+        f"j_subset_masks shape: {j_subset_masks_arr.shape}, dtype: {j_subset_masks_arr.dtype}"
+    )
 
     # Example: Check overlap between first k-combo and first j-subset
     # Need to unpack bits to check direct overlap if needed, or use bitwise AND on packed bits
     # Note: np.packbits pads with False, so direct bitwise AND works for checking ANY overlap
 
     if k_combo_masks_arr.shape[0] > 0 and j_subset_masks_arr.shape[0] > 0:
-        overlap_bytes_k0_j0 = np.bitwise_and(k_combo_masks_arr[0], j_subset_masks_arr[0])
-        print(f"\nBitwise AND result for k_combo[0] and j_subset[0]: {overlap_bytes_k0_j0}")
+        overlap_bytes_k0_j0 = np.bitwise_and(
+            k_combo_masks_arr[0], j_subset_masks_arr[0]
+        )
+        print(
+            f"\nBitwise AND result for k_combo[0] and j_subset[0]: {overlap_bytes_k0_j0}"
+        )
         print(f"Does k_combo[0] overlap with j_subset[0]? {overlap_bytes_k0_j0.any()}")
 
         # Unpack to verify
@@ -112,8 +131,12 @@ if __name__ == "__main__":
     s_in_k0_masks = generate_masks(s_in_k0_list, n_example)
     s_in_j0_masks = generate_masks(s_in_j0_list, n_example)
 
-    print(f"\nMasks for s={s_example} subsets of k_combo[0]: shape={s_in_k0_masks.shape}")
-    print(f"Masks for s={s_example} subsets of j_subset[0]: shape={s_in_j0_masks.shape}")
+    print(
+        f"\nMasks for s={s_example} subsets of k_combo[0]: shape={s_in_k0_masks.shape}"
+    )
+    print(
+        f"Masks for s={s_example} subsets of j_subset[0]: shape={s_in_j0_masks.shape}"
+    )
 
     # Check if *any* s-subset mask from j0 overlaps with *any* s-subset mask from k0
     is_j0_covered_by_k0 = False
@@ -124,11 +147,13 @@ if __name__ == "__main__":
         for s_j_mask in s_in_j0_masks:
             # Check against all s_in_k masks
             overlap_results = np.bitwise_and(s_j_mask, s_in_k0_masks)
-            if np.any(overlap_results): # Checks if any byte in any result is non-zero
+            if np.any(overlap_results):  # Checks if any byte in any result is non-zero
                 is_j0_covered_by_k0 = True
                 break
 
-    print(f"Is j_subset[0] covered (s={s_example}) by k_combo[0]? {is_j0_covered_by_k0}")
+    print(
+        f"Is j_subset[0] covered (s={s_example}) by k_combo[0]? {is_j0_covered_by_k0}"
+    )
 
     # Compare with set logic
     set_s_in_k0 = {frozenset(s) for s in s_in_k0_list}

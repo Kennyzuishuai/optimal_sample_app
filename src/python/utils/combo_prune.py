@@ -1,6 +1,7 @@
 import itertools
-import sys # Import sys at the top level
+import sys  # Import sys at the top level
 from typing import List, Tuple
+
 
 def unique_k_combos(samples: List[int], k: int, s: int) -> List[Tuple[int, ...]]:
     """
@@ -21,7 +22,9 @@ def unique_k_combos(samples: List[int], k: int, s: int) -> List[Tuple[int, ...]]
     """
     if s > k:
         # This case should not happen if parameters are validated, but good to check.
-        raise ValueError("s cannot be greater than k for generating s-subset signatures.")
+        raise ValueError(
+            "s cannot be greater than k for generating s-subset signatures."
+        )
 
     sig_to_combo: dict[Tuple[Tuple[int, ...], ...], Tuple[int, ...]] = {}
     count_original = 0
@@ -46,21 +49,27 @@ def unique_k_combos(samples: List[int], k: int, s: int) -> List[Tuple[int, ...]]
             count_duplicate += 1
 
     unique_combos = list(sig_to_combo.values())
-    print(f"unique_k_combos: Original k-combos={count_original}, Duplicates pruned={count_duplicate}, Unique signatures={len(unique_combos)}", file=sys.stderr)
+    print(
+        f"unique_k_combos: Original k-combos={count_original}, Duplicates pruned={count_duplicate}, Unique signatures={len(unique_combos)}",
+        file=sys.stderr,
+    )
 
     return unique_combos
 
+
 # Example Usage (if run directly)
-if __name__ == '__main__':
+if __name__ == "__main__":
     # sys is already imported at the top
-    samples_example = list(range(1, 8)) # n=7
+    samples_example = list(range(1, 8))  # n=7
     k_example = 6
-    s_example = 5 # s=j=5
+    s_example = 5  # s=j=5
 
     unique_combos_list = unique_k_combos(samples_example, k_example, s_example)
 
     print(f"\nExample: n={len(samples_example)}, k={k_example}, s={s_example}")
-    print(f"Total k-combinations ({len(samples_example)}C{k_example}): {len(list(itertools.combinations(samples_example, k_example)))}")
+    print(
+        f"Total k-combinations ({len(samples_example)}C{k_example}): {len(list(itertools.combinations(samples_example, k_example)))}"
+    )
     print(f"Unique combinations based on s-subset signature: {len(unique_combos_list)}")
     # print("Unique combos:")
     # for uc in unique_combos_list:
@@ -71,5 +80,9 @@ if __name__ == '__main__':
     s_example_2 = 4
     unique_combos_list_2 = unique_k_combos(samples_example, k_example_2, s_example_2)
     print(f"\nExample 2: n={len(samples_example)}, k={k_example_2}, s={s_example_2}")
-    print(f"Total k-combinations ({len(samples_example)}C{k_example_2}): {len(list(itertools.combinations(samples_example, k_example_2)))}")
-    print(f"Unique combinations based on s-subset signature: {len(unique_combos_list_2)}")
+    print(
+        f"Total k-combinations ({len(samples_example)}C{k_example_2}): {len(list(itertools.combinations(samples_example, k_example_2)))}"
+    )
+    print(
+        f"Unique combinations based on s-subset signature: {len(unique_combos_list_2)}"
+    )
